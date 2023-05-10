@@ -9,6 +9,7 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import curve_fit
 
 
 def read_data(file_path):
@@ -58,6 +59,10 @@ def plot_clusters(data, labels, centers):
     plt.show()
 
 
+def func(x, a, b, c):
+    return a * np.exp(-b * x) + c
+
+
 # Read the data from a file
 data = read_data('API_19_DS2_en_excel_v2_5360124.xlsx')
 
@@ -88,3 +93,42 @@ centers = kmeans.cluster_centers_
 
 # Plot the clusters
 plot_clusters(data.iloc[:, 1:], labels, centers)
+
+
+# fitted models
+
+# Create a figure with 2 rows and 3 columns
+fig, axs = plt.subplots(2, 3)
+
+# Fit a model for each cluster and each indicator
+for j in range(2):
+    # Select the data for the current indicator
+    indicator = indicators[j]
+    data = do[do['Indicator Name'] == indicator]
+
+    # Use the existing cluster labels
+    labels = labels
+
+    for i in range(3):
+        # Select one country from the cluster
+        country = data.iloc[np.where(labels == i)[0][0], 0]
+
+        # Extract the x and y values from the data
+        xdata = data.iloc[:, 2:].columns.astype(int)
+        ydata = data[data['Country Name'] == country].iloc[:, 2:].values[0]
+
+        # Fit the exponential growth model to the data
+        popt, pcov = curve_fit(func, xdata, ydata)
+
+        # Make predictions for the next 10 years
+        xpred = np.arange(xdata[-1]+1, xdata[-1]+11)
+        ypred = func(xpred, *popt)
+
+        # Plot the data and the fitted model
+        axs[j, i].plot(xdata, ydata, 'ko', label="Original Data")
+        axs[j, i].plot(xdata, func(xdata, *popt), 'r-', label="Fitted Curve")
+        axs[j, i].plot(xpred, ypred, 'b--', label="Predictions")
+        axs[j, i].set_title(f'Cluster {i+1}: {country}')
+        axs[j, i].legend()
+
+plt.show()
