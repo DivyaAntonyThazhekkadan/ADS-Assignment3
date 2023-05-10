@@ -64,6 +64,38 @@ def func(x, a, b, c):
     return a * np.exp(-b * x) + c
 
 
+def err_ranges(x, func, param, sigma):
+    """
+    Calculates the upper and lower limits for the function, parameters and
+    sigmas for single value or array x. Functions values are calculated for 
+    all combinations of +/- sigma and the minimum and maximum is determined.
+    Can be used for all number of parameters and sigmas >=1.
+
+    This routine can be used in assignment programs.
+    """
+
+    import itertools as iter
+
+    # initiate arrays for lower and upper limits
+    lower = func(x, *param)
+    upper = lower
+
+    uplow = []   # list to hold upper and lower limits for parameters
+    for p, s in zip(param, sigma):
+        pmin = p - s
+        pmax = p + s
+        uplow.append((pmin, pmax))
+
+    pmix = list(iter.product(*uplow))
+
+    for p in pmix:
+        y = func(x, *p)
+        lower = np.minimum(lower, y)
+        upper = np.maximum(upper, y)
+
+    return lower, upper
+
+
 # Read the data from a file
 data = read_data('API_19_DS2_en_excel_v2_5360124.xlsx')
 
@@ -125,6 +157,15 @@ for j in range(2):
         xpred = np.arange(xdata[-1]+1, xdata[-1]+11)
         ypred = func(xpred, *popt)
 
+        # Calculate the standard deviation of the parameters
+        sigma = np.sqrt(np.diag(pcov))
+
+        # Calculate the lower and upper limits of the confidence range
+        x = np.concatenate((xdata, xpred))
+        lower, upper = err_ranges(x, func, popt, sigma)
+
+        # Plot the confidence range
+        axs[j, i].fill_between(x, lower, upper, color='gray', alpha=0.5)
         # Plot the data and the fitted model using seaborn
         sns.scatterplot(x=xdata, y=ydata, ax=axs[j, i])
         sns.lineplot(x=xdata, y=func(xdata, *popt), color='r', ax=axs[j, i])
@@ -145,7 +186,8 @@ for j in range(2):
         axs[j, i].set_title(f'Cluster {i+1}: {country}')
 
 # Show a single legend at the top right corner of the figure
-handles = [axs[0][0].lines[0], axs[0][0].lines[1], axs[0][0].collections[0]]
+# handles = [axs[0][0].lines[0], axs[0][0].lines[1], axs[0][0].collections[0]]
+handles = [axs[j][i].lines[0], axs[j][i].lines[1], axs[j][i].collections[0]]
 labels = ['Fitted Curve', 'Predictions', 'Original Data']
 fig.legend(handles=handles[::-1],
            labels=labels[::-1], loc='upper right', ncol=3, bbox_to_anchor=(1, 0.95))
