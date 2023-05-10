@@ -8,6 +8,7 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def read_data(file_path):
@@ -39,14 +40,20 @@ def run_kmeans(data, n_clusters):
 
 def plot_clusters(data, labels, centers):
     """Plot the data with cluster labels and cluster centers."""
-    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
-    plt.scatter(data.iloc[:, 0], data.iloc[:, 1], c=labels)
+    colors = plt.cm.Spectral(labels.astype(float) / len(centers))
+    plt.scatter(data.iloc[:, 0], data.iloc[:, 1], c=colors)
+    center_colors = plt.cm.Spectral(
+        np.arange(len(centers)).astype(float) / len(centers))
     plt.scatter(centers[:, 0], centers[:, 1], marker='x', s=200, linewidths=3,
-                color=[colors[i] for i in range(len(centers))], zorder=10)
+                color=center_colors, zorder=10)
     for i, txt in enumerate(data.index):
         plt.annotate(txt, (data.iloc[i, 0], data.iloc[i, 1]))
-    plt.xlabel(data.columns[0])
-    plt.ylabel(data.columns[1])
+
+    plt.xlabel(data.columns[0][1])
+    plt.ylabel(data.columns[1][1])
+    plt.title('Cluster Plot')
+    plt.ylim([min(data.iloc[:, 1])-3, max(data.iloc[:, 1])+1])
+
     plt.savefig('cluster.png', bbox_inches="tight")
     plt.show()
 
