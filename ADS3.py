@@ -97,9 +97,9 @@ plot_clusters(data.iloc[:, 1:], labels, centers)
 
 
 # fitted models
-
 # Create a figure with 2 rows and 3 columns
-fig, axs = plt.subplots(2, 3)
+fig, axs = plt.subplots(2, 3, figsize=(12, 6))
+fig.subplots_adjust(top=0.75, bottom=0.375, left=0.15, right=0.95)
 
 # Fit a model for each cluster and each indicator
 for j in range(2):
@@ -147,16 +147,25 @@ for j in range(2):
 # Show a single legend at the top right corner of the figure
 handles = [axs[0][0].lines[0], axs[0][0].lines[1], axs[0][0].collections[0]]
 labels = ['Fitted Curve', 'Predictions', 'Original Data']
-fig.legend(handles=handles[::-1], labels=labels[::-1], loc='upper right')
+fig.legend(handles=handles[::-1],
+           labels=labels[::-1], loc='upper right', ncol=3, bbox_to_anchor=(1, 0.95))
 
 # Add a title for the figure
 fig.suptitle('Fitted Models')
 
-# Add subtitles for each row as horizontal text
-fig.text(0.5, 0.5, indicators[0], ha='center')
-fig.text(0.5, 0.05, indicators[1], ha='center')
+# Add subtitles for each row at the top left of each row
+axs[0][0].set_title(indicators[0], loc='left', fontdict={
+                    'fontsize': 14, 'color': 'darkblue'}, y=1.4)
+axs[1][0].set_title(indicators[1], loc='left', fontdict={
+                    'fontsize': 14, 'color': 'darkblue'}, y=1.4)
+fig.suptitle('Fitted Models', color='darkblue', fontsize=16)
+for i in range(3):
+    axs[0][i].set_xlabel('Year')
+    axs[1][i].set_xlabel('Year')
+    axs[0][i].set_ylabel('CO2 emissions')
+    axs[1][i].set_ylabel('Energy consumption')
 
 # Adjust the spacing of the subplots to make the figure less congested
 fig.tight_layout()
-
+plt.savefig('fitted models.png', bbox_inches="tight")
 plt.show()
