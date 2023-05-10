@@ -10,6 +10,7 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
+import seaborn as sns
 
 
 def read_data(file_path):
@@ -124,11 +125,38 @@ for j in range(2):
         xpred = np.arange(xdata[-1]+1, xdata[-1]+11)
         ypred = func(xpred, *popt)
 
-        # Plot the data and the fitted model
-        axs[j, i].plot(xdata, ydata, 'ko', label="Original Data")
-        axs[j, i].plot(xdata, func(xdata, *popt), 'r-', label="Fitted Curve")
-        axs[j, i].plot(xpred, ypred, 'b--', label="Predictions")
+        # Plot the data and the fitted model using seaborn
+        sns.scatterplot(x=xdata, y=ydata, ax=axs[j, i])
+        sns.lineplot(x=xdata, y=func(xdata, *popt), color='r', ax=axs[j, i])
+        sns.lineplot(x=xpred, y=ypred, color='b', linestyle='--', ax=axs[j, i])
+
+        # Remove the borders of the subplot
+        axs[j, i].spines['top'].set_visible(False)
+        axs[j, i].spines['right'].set_visible(False)
+
+        # Adjust the x and y axis ticks to show at least 10 markings
+        axs[j, i].xaxis.set_major_locator(plt.MaxNLocator(10))
+        axs[j, i].yaxis.set_major_locator(plt.MaxNLocator(10))
+
+        # Rotate the x-axis tick labels to be vertical
+        axs[j, i].tick_params(axis='x', rotation=90)
+
+        # Set the title of the subplot to show the cluster and country name
         axs[j, i].set_title(f'Cluster {i+1}: {country}')
-        axs[j, i].legend()
+
+# Show a single legend at the top right corner of the figure
+handles = [axs[0][0].lines[0], axs[0][0].lines[1], axs[0][0].collections[0]]
+labels = ['Fitted Curve', 'Predictions', 'Original Data']
+fig.legend(handles=handles[::-1], labels=labels[::-1], loc='upper right')
+
+# Add a title for the figure
+fig.suptitle('Fitted Models')
+
+# Add subtitles for each row as horizontal text
+fig.text(0.5, 0.5, indicators[0], ha='center')
+fig.text(0.5, 0.05, indicators[1], ha='center')
+
+# Adjust the spacing of the subplots to make the figure less congested
+fig.tight_layout()
 
 plt.show()
