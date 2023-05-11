@@ -56,7 +56,7 @@ def plot_clusters(data, labels, centers):
     plt.title('Cluster Plot')
     plt.ylim([min(data.iloc[:, 1])-3, max(data.iloc[:, 1])+1])
 
-    plt.savefig('cluster.png', bbox_inches="tight")
+    plt.savefig('cluster.png', dpi=300, bbox_inches="tight")
     plt.show()
 
 
@@ -167,9 +167,14 @@ for j in range(2):
         # Plot the confidence range
         axs[j, i].fill_between(x, lower, upper, color='blue', alpha=0.5)
         # Plot the data and the fitted model using seaborn
-        sns.scatterplot(x=xdata, y=ydata, ax=axs[j, i])
-        sns.lineplot(x=xdata, y=func(xdata, *popt), color='r', ax=axs[j, i])
-        sns.lineplot(x=xpred, y=ypred, color='b', linestyle='--', ax=axs[j, i])
+        # sns.scatterplot(x=xdata, y=ydata, ax=axs[j, i])
+        # sns.lineplot(x=xdata, y=func(xdata, *popt), color='r', ax=axs[j, i])
+        # sns.lineplot(x=xpred, y=ypred, color='b', linestyle='--', ax=axs[j, i])
+
+        # Plot the data and the fitted model using pyplot
+        axs[j, i].scatter(x=xdata, y=ydata)
+        axs[j, i].plot(xdata, func(xdata, *popt), color='r')
+        axs[j, i].plot(xpred, ypred, color='b', linestyle='--')
 
         # Remove the borders of the subplot
         axs[j, i].spines['top'].set_visible(False)
@@ -209,5 +214,5 @@ for i in range(3):
 
 # Adjust the spacing of the subplots to make the figure less congested
 fig.tight_layout()
-plt.savefig('fitted models.png', bbox_inches="tight")
+plt.savefig('fitted models.png', dpi=300, bbox_inches="tight")
 plt.show()
