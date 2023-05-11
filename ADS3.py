@@ -165,7 +165,7 @@ for j in range(2):
         lower, upper = err_ranges(x, func, popt, sigma)
 
         # Plot the confidence range
-        axs[j, i].fill_between(x, lower, upper, color='gray', alpha=0.5)
+        axs[j, i].fill_between(x, lower, upper, color='blue', alpha=0.5)
         # Plot the data and the fitted model using seaborn
         sns.scatterplot(x=xdata, y=ydata, ax=axs[j, i])
         sns.lineplot(x=xdata, y=func(xdata, *popt), color='r', ax=axs[j, i])
